@@ -9,6 +9,14 @@ require 'rubygems'
 require 'rubygems/gem_runner'
 require 'rubygems/exceptions'
 
+class Gem::ConfigFile
+  # Remove default constant to avoid a warning: previous definition was here.
+  if const_defined?(:OPERATING_SYSTEM_DEFAULTS)
+    remove_const(:OPERATING_SYSTEM_DEFAULTS)
+  end
+  OPERATING_SYSTEM_DEFAULTS = {}
+end
+
 required_version = Gem::Requirement.new ">= 1.8.7"
 
 unless required_version.satisfied_by? Gem.ruby_version then

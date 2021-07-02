@@ -8,9 +8,9 @@ on:
       - .rubocop_bundler.yml
 
   push:
-    branches:
-      - master
-      - 3.2
+    # branches:
+    #   - master
+    #   - 3.2
 
 jobs:
   older_rubygems_bundler:

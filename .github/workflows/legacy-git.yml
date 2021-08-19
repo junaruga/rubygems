@@ -25,5 +25,14 @@ jobs:
         run: ruby setup.rb
       - name: Check we can install a Gemfile with git sources
         run: bundle init && bundle add fileutils --git https://github.com/ruby/fileutils
+      - name: Prepare bundler dependencies
+        run: bin/rake spec:parallel_deps
+        working-directory: ./bundler
+      - name: Test a bundler specific test
+        run: bin/rspec spec/commands/add_spec.rb:105
+        working-directory: ./bundler
+      - name: Test bundler
+        run: bin/parallel_rspec
+        working-directory: ./bundler
 
     timeout-minutes: 10

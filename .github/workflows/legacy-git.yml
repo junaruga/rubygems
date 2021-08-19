@@ -18,6 +18,11 @@ jobs:
       options: --user=root
     steps:
       - uses: actions/checkout@v2
+      - name: Restore not built gems to pristine condition
+        run: |
+          for gem in bigdecimal io-console openssl psych; do
+            gem pristine "${gem}"
+          done
       - name: Install rubygems
         run: ruby setup.rb
       - name: Check we can install a Gemfile with git sources

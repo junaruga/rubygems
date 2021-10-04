@@ -32,6 +32,9 @@ jobs:
           rake setup
           rake test
 
+      - name: Test rubygems isolatedly
+        run: ruby -Ilib:test -e 'Dir.glob "./test/**/test_*.rb", &method(:require)'
+
       - name: Get previous status
         if: always()
         run: echo "OLD_STATUS=$(curl -sS 'https://api.github.com/repos/rubygems/rubygems/actions/workflows/daily-rubygems.yml/runs?event=schedule&branch=master' | jq '.workflow_runs | .[1].conclusion')" >> $GITHUB_ENV

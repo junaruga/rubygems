@@ -517,7 +517,30 @@ module Bundler
     end
 
     def precompute_source_requirements_for_indirect_dependencies?
-      @remote && sources.non_global_rubygems_sources.all?(&:dependency_api_available?) && !sources.aggregate_global_source?
+      precompute = true
+      reasons = []
+
+      if @remote
+        unless sources.non_global_rubygems_sources.all?(&:dependency_api_available?)
+          reasons << "any of the involved gem servers does not implement a dependency API"
+          precompute = false
+        end
+
+        if sources.aggregate_global_source?
+          reasons << "the Gemfile has multiple global sources"
+          precompute = false
+        end
+      end
+
+      unless precompute
+        msg = String.new
+        msg << "Your bundle cannot resolve indirect dependencies because "
+        msg << reasons.join(" and ")
+        msg << "."
+        Bundler.ui.warn msg
+      end
+
+      @remote && precompute
     end
 
     def current_ruby_platform_locked?

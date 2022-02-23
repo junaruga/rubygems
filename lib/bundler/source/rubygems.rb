@@ -185,6 +185,10 @@ module Bundler
         end
       end
 
+      def dependency_api_available?
+        api_fetchers.any?
+      end
+
     private
 
       def source_uris_for_spec(spec)

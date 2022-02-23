@@ -104,6 +104,12 @@ module Bundler
       end
     end
 
+    def spec_names
+      names = specs.keys + sources.map(&:spec_names)
+      names.uniq!
+      names
+    end
+
     # returns a list of the dependencies
     def unmet_dependency_names
       names = []
@@ -111,6 +117,17 @@ module Bundler
       names.uniq!
       names.delete_if{|n| n == "bundler" }
       names.select{|n| search(n).empty? }
+    end
+
+    def dependency_names
+      names = []
+      each do |spec|
+        spec.dependencies.each do |dep|
+          next if dep.type == :development
+          names << dep.name
+        end
+      end
+      names.uniq
     end
 
     def use(other, override_dupes = false)

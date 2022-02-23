@@ -31,6 +31,10 @@ module Bundler
       @rubygems_sources + [@rubygems_aggregate]
     end
 
+    def non_global_rubygems_sources
+      @rubygems_sources
+    end
+
     def rubygems_remotes
       rubygems_sources.map(&:remotes).flatten.uniq
     end

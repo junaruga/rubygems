@@ -7,10 +7,6 @@ unless Gem::HAVE_OPENSSL
   warn "Skipping Gem::Security tests.  openssl not found."
 end
 
-if Gem.java_platform?
-  warn "Skipping Gem::Security tests on jruby."
-end
-
 class TestGemSecurity < Gem::TestCase
   def test_class_create_cert
     name = PUBLIC_CERT.subject
@@ -328,4 +324,4 @@ class TestGemSecurity < Gem::TestCase
 
     assert_equal PUBLIC_CERT.to_pem, cert_from_file
   end
-end if Gem::HAVE_OPENSSL && !Gem.java_platform?
+end if Gem::HAVE_OPENSSL

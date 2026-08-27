@@ -7,10 +7,6 @@ unless Gem::HAVE_OPENSSL
   warn "Skipping `gem cert` tests.  openssl not found."
 end
 
-if Gem.java_platform?
-  warn "Skipping `gem cert` tests on jruby."
-end
-
 class TestGemCommandsCertCommand < Gem::TestCase
   def setup
     super
@@ -866,4 +862,4 @@ ERROR:  --private-key not specified and ~/.gem/gem-private_key.pem does not exis
     assert_equal "invalid argument: --sign #{nonexistent}: does not exist",
                  e.message
   end
-end if Gem::HAVE_OPENSSL && !Gem.java_platform?
+end if Gem::HAVE_OPENSSL

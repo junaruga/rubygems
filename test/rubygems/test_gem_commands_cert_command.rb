@@ -158,6 +158,7 @@ Added '/CN=alternate/DC=example'
   end
 
   def test_execute_build_key_algorithm_ml_dsa_65_key
+    omit_unless_support_ml_dsa_key
     omit_unless_support_ml_dsa_cert
 
     passphrase = "Foo bar"

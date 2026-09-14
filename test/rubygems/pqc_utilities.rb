@@ -85,7 +85,9 @@ module Gem::PQCUtilities
 
     @support_ml_dsa_cert =
       begin
-        key = OpenSSL::PKey.generate_key("ML-DSA-65")
+        key = OpenSSL::PKey.read(
+          File.read(File.join(CERTS_DIR, "mldsa65_private_key.pem"))
+        )
         cert = OpenSSL::X509::Certificate.new
         cert.subject = cert.issuer = OpenSSL::X509::Name.new([["CN", "probe"]])
         cert.public_key = OpenSSL::PKey.read(key.public_to_pem)
@@ -93,10 +95,9 @@ module Gem::PQCUtilities
         cert.not_after = Time.now + 60
         cert.sign(key, nil)
         true
-      # NoMethodError: JRuby's Ruby OpenSSL lacks generate_key.
       # TypeError: Ruby OpenSSL < 3.3 rejects a nil digest here.
       rescue OpenSSL::PKey::PKeyError, OpenSSL::X509::CertificateError,
-             NoMethodError, TypeError
+             TypeError
         false
       end
   end

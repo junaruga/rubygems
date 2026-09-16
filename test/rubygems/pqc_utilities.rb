@@ -5,9 +5,9 @@
 
 require "socket"
 require "openssl"
+require_relative "pem_utilities"
 
 module Gem::PQCUtilities
-  CERTS_DIR = __dir__
 
   # PQC algorithms ML-KEM and ML-DSA require OpenSSL >= 3.5.
   # https://openssl-library.org/post/2025-04-08-openssl-35-final-release/
@@ -63,16 +63,7 @@ module Gem::PQCUtilities
   def self.support_ml_dsa_key_load?
     return @support_ml_dsa_key_load unless @support_ml_dsa_key_load.nil?
 
-    @support_ml_dsa_key_load =
-      begin
-        !OpenSSL::PKey.read(
-          File.read(File.join(CERTS_DIR, "mldsa65_private_key.pem"))
-        ).nil?
-      # Mirrors Gem::PEMUtilities.load_key, which rescues the same error when an
-      # unsupported key algorithm is read.
-      rescue OpenSSL::PKey::PKeyError
-        false
-      end
+    @support_ml_dsa_key_load = !Gem::PEMUtilities::ML_DSA_65_PRIVATE_KEY.nil?
   end
 
   ##
@@ -84,21 +75,23 @@ module Gem::PQCUtilities
     return @support_ml_dsa_cert unless @support_ml_dsa_cert.nil?
 
     @support_ml_dsa_cert =
-      begin
-        key = OpenSSL::PKey.read(
-          File.read(File.join(CERTS_DIR, "mldsa65_private_key.pem"))
-        )
-        cert = OpenSSL::X509::Certificate.new
-        cert.subject = cert.issuer = OpenSSL::X509::Name.new([["CN", "probe"]])
-        cert.public_key = OpenSSL::PKey.read(key.public_to_pem)
-        cert.not_before = Time.now
-        cert.not_after = Time.now + 60
-        cert.sign(key, nil)
-        true
-      # TypeError: Ruby OpenSSL < 3.3 rejects a nil digest here.
-      rescue OpenSSL::PKey::PKeyError, OpenSSL::X509::CertificateError,
-             TypeError
+      if Gem::PEMUtilities::ML_DSA_65_PRIVATE_KEY.nil?
         false
+      else
+        begin
+          key = Gem::PEMUtilities::ML_DSA_65_PRIVATE_KEY
+          cert = OpenSSL::X509::Certificate.new
+          cert.subject = cert.issuer = OpenSSL::X509::Name.new([["CN", "probe"]])
+          cert.public_key = OpenSSL::PKey.read(key.public_to_pem)
+          cert.not_before = Time.now
+          cert.not_after = Time.now + 60
+          cert.sign(key, nil)
+          true
+        # TypeError: Ruby OpenSSL < 3.3 rejects a nil digest here.
+        rescue OpenSSL::PKey::PKeyError, OpenSSL::X509::CertificateError,
+               TypeError
+          false
+        end
       end
   end
 
